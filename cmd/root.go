@@ -7,8 +7,8 @@ import (
 
 var rootCmd = &cobra.Command{
 	Use:   "mally-cli",
-	Short: "A CLI tool for the Mally website",
-	Long:  `Allows creating short urls and pastebins directly from your terminal.`,
+	Short: "A CLI tool for creating short URLs and pastes directly from your terminal.",
+	Long:  `Mally is a website that provides a collection of web services such as URL shorteners and pastebins.`,
 }
 
 func Execute() {
