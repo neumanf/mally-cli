@@ -46,6 +46,12 @@ func getUserCredentials() (string, string) {
 	return email, password
 }
 
+type loginResponse struct {
+	AccessToken string `json:"accessToken"`
+	Email       string `json:"email"`
+	Sub         uint   `json:"sub"`
+}
+
 func login(email string, password string) string {
 	values := map[string]string{"username": email, "password": password}
 	jsonData, err := json.Marshal(values)
@@ -65,15 +71,15 @@ func login(email string, password string) string {
 		log.Fatal("Invalid credentials")
 	}
 
-	var res map[string]string
+	var res loginResponse
 
 	err = json.NewDecoder(resp.Body).Decode(&res)
 
 	if err != nil {
-		log.Fatal("Could not decode API response")
+		log.Fatal("Could not decode API response", err)
 	}
 
-	return res["accessToken"]
+	return res.AccessToken
 }
 
 func init() {
