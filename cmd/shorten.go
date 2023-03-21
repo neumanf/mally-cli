@@ -1,14 +1,10 @@
 package cmd
 
 import (
-	"bytes"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/neumanf/mally-cli/services"
 	"github.com/spf13/cobra"
-	"log"
-	"net/http"
 )
 
 var shortenCmd = &cobra.Command{
@@ -28,45 +24,16 @@ var shortenCmd = &cobra.Command{
 	},
 }
 
+type shortURLResponse struct {
+	Slug string `json:"slug"`
+}
+
 func createShortUrl(url string) string {
-	values := map[string]string{"url": url}
-	jsonData, err := json.Marshal(values)
+	data := map[string]string{"url": url}
 
-	if err != nil {
-		log.Fatal(err)
-	}
+	res := services.PostRequest[map[string]string, shortURLResponse]("/url-shortener", data)
 
-	token := services.GetToken()
-
-	client := &http.Client{}
-	req, _ := http.NewRequest("POST", "https://api.mally.neumanf.com/api/url-shortener", bytes.NewBuffer(jsonData))
-
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Cookie", "accessToken="+token)
-
-	resp, err := client.Do(req)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	var res map[string]string
-
-	err = json.NewDecoder(resp.Body).Decode(&res)
-
-	if err != nil {
-		log.Fatal("Could not decode API response", err)
-	}
-
-	if resp.StatusCode != 201 {
-		if resp.StatusCode == 401 {
-			log.Fatal("You are not authorized, please use 'mally-cli login' first to login and then try again.")
-		}
-
-		log.Fatal("Status code: ", resp.StatusCode, ", message: ", res["message"])
-	}
-
-	return res["slug"]
+	return res.Slug
 }
 
 func init() {

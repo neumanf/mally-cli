@@ -1,13 +1,10 @@
 package cmd
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
 	"github.com/neumanf/mally-cli/services"
 	"github.com/spf13/cobra"
 	"log"
-	"net/http"
 )
 
 var loginCmd = &cobra.Command{
@@ -53,31 +50,9 @@ type loginResponse struct {
 }
 
 func login(email string, password string) string {
-	values := map[string]string{"username": email, "password": password}
-	jsonData, err := json.Marshal(values)
+	data := map[string]string{"username": email, "password": password}
 
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	resp, err := http.Post("https://api.mally.neumanf.com/api/auth/login", "application/json",
-		bytes.NewBuffer(jsonData))
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if resp.StatusCode == 401 {
-		log.Fatal("Invalid credentials")
-	}
-
-	var res loginResponse
-
-	err = json.NewDecoder(resp.Body).Decode(&res)
-
-	if err != nil {
-		log.Fatal("Could not decode API response", err)
-	}
+	res := services.PostRequest[map[string]string, loginResponse]("/auth/login", data)
 
 	return res.AccessToken
 }

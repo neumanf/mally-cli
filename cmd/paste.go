@@ -1,13 +1,10 @@
 package cmd
 
 import (
-	"bytes"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/neumanf/mally-cli/services"
 	"log"
-	"net/http"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -54,45 +51,16 @@ func createPasteFromFile(syntax string) string {
 	return createPasteFromSnippet(syntax, snippet)
 }
 
+type pasteResponse struct {
+	Slug string `json:"slug"`
+}
+
 func createPasteFromSnippet(syntax string, snippet string) string {
-	values := map[string]string{"syntax": syntax, "content": snippet}
-	jsonData, err := json.Marshal(values)
+	data := map[string]string{"syntax": syntax, "content": snippet}
 
-	if err != nil {
-		log.Fatal(err)
-	}
+	res := services.PostRequest[map[string]string, pasteResponse]("/pastebin", data)
 
-	token := services.GetToken()
-
-	client := &http.Client{}
-	req, _ := http.NewRequest("POST", "https://api.mally.neumanf.com/api/pastebin", bytes.NewBuffer(jsonData))
-
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Cookie", "accessToken="+token)
-
-	resp, err := client.Do(req)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	var res map[string]string
-
-	err = json.NewDecoder(resp.Body).Decode(&res)
-
-	if err != nil {
-		log.Fatal("Could not decode API response", err)
-	}
-
-	if resp.StatusCode != 201 {
-		if resp.StatusCode == 401 {
-			log.Fatal("You are not authorized, please use 'mally-cli login' first to login and then try again.")
-		}
-
-		log.Fatal("Status code: ", resp.StatusCode, ", message: ", res["message"])
-	}
-
-	return res["slug"]
+	return res.Slug
 }
 
 func init() {
