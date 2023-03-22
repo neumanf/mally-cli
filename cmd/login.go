@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"github.com/neumanf/mally-cli/services"
 	"github.com/spf13/cobra"
+	"golang.org/x/term"
 	"log"
+	"syscall"
 )
 
 var loginCmd = &cobra.Command{
@@ -23,7 +25,7 @@ var loginCmd = &cobra.Command{
 }
 
 func getUserCredentials() (string, string) {
-	var email, password string
+	var email string
 
 	fmt.Println("[DISCLAIMER] Your login credentials are not stored.")
 	fmt.Print("Email: ")
@@ -34,13 +36,13 @@ func getUserCredentials() (string, string) {
 	}
 
 	fmt.Print("Password: ")
-	_, err = fmt.Scan(&password)
+	password, err := term.ReadPassword(syscall.Stdin)
 
 	if err != nil {
 		log.Fatal("Could not read password input")
 	}
 
-	return email, password
+	return email, string(password)
 }
 
 type loginResponse struct {

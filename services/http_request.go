@@ -40,7 +40,7 @@ func PostRequest[Req any, Res any](path string, data Req) Res {
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		if resp.StatusCode == 401 {
-			log.Fatal("You are not authorized, please use 'mally-cli login' first to login and then try again.")
+			log.Fatal("You are not authorized. If you are trying to login, check your credentials. Otherwise, please use 'mally-cli login' first to login and then try again.")
 		}
 
 		log.Fatal("Status code: ", resp.StatusCode, ", response: ", res)
