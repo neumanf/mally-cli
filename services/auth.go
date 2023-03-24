@@ -11,12 +11,12 @@ func StoreToken(token string) {
 	}
 }
 
-func GetToken() string {
+func GetToken() (string, error) {
 	token, err := os.ReadFile("accessToken")
 
 	if err != nil {
-		log.Fatal(err)
+		return "", err
 	}
 
-	return string(token)
+	return string(token), nil
 }

@@ -54,7 +54,7 @@ type loginResponse struct {
 func login(email string, password string) string {
 	data := map[string]string{"username": email, "password": password}
 
-	res := services.PostRequest[map[string]string, loginResponse]("/auth/login", data)
+	res := services.PostRequest[map[string]string, loginResponse]("/auth/login", data, nil)
 
 	return res.AccessToken
 }

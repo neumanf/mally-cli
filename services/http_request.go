@@ -9,20 +9,20 @@ import (
 
 const BaseUrl string = "https://api.mally.neumanf.com/api"
 
-func PostRequest[Req any, Res any](path string, data Req) Res {
+func PostRequest[Req any, Res any](path string, data Req, token *string) Res {
 	jsonData, err := json.Marshal(data)
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	token := GetToken()
-
 	client := &http.Client{}
 	req, _ := http.NewRequest("POST", BaseUrl+path, bytes.NewBuffer(jsonData))
 
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Cookie", "accessToken="+token)
+	if token != nil {
+		req.Header.Set("Cookie", "accessToken="+*token)
+	}
 
 	resp, err := client.Do(req)
 

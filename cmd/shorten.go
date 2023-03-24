@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/neumanf/mally-cli/services"
 	"github.com/spf13/cobra"
+	"log"
 )
 
 var shortenCmd = &cobra.Command{
@@ -31,7 +32,13 @@ type shortURLResponse struct {
 func createShortUrl(url string) string {
 	data := map[string]string{"url": url}
 
-	res := services.PostRequest[map[string]string, shortURLResponse]("/url-shortener", data)
+	token, err := services.GetToken()
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	res := services.PostRequest[map[string]string, shortURLResponse]("/url-shortener", data, &token)
 
 	return res.Slug
 }

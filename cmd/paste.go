@@ -58,7 +58,13 @@ type pasteResponse struct {
 func createPasteFromSnippet(syntax string, snippet string) string {
 	data := map[string]string{"syntax": syntax, "content": snippet}
 
-	res := services.PostRequest[map[string]string, pasteResponse]("/pastebin", data)
+	token, err := services.GetToken()
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	res := services.PostRequest[map[string]string, pasteResponse]("/pastebin", data, &token)
 
 	return res.Slug
 }
